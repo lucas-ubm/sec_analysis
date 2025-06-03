@@ -12,10 +12,7 @@ def read_file(file_name:str) -> dict:
     return content
 
 
-def extract_keywords(file:dict, sections:list=["1", "1A", "3", "7"], search_terms:list=[]):
-  search_terms = ["Artificial Intelligence","A\.I", "Machine Learning","Deep Learning","NLP",
-    "Natural Language Processing", "Computer Vision", "Chatbot","Recommendation System", "Recommender System", "Image Recognition", "Speech Recognition", "Voice Assistant",
-    "Artificial General Intelligence","AGI", "generative", "deepfake"]
+def search_file(file:dict, search_terms:list, sections:list=["1", "1A", "3", "7"]):
   search_pattern = re.compile(r'\b(' + '|'.join(search_terms) + r')\b', re.IGNORECASE)
   document_results = {}
   document_results['company'] = file['company']
@@ -60,41 +57,90 @@ def extract_keywords(file:dict, sections:list=["1", "1A", "3", "7"], search_term
     document_results = None
   return document_results   
 
-def mention_extraction(files:list, file_name:str, sections:list=["1", "1A", "3", "7"], search_terms:list=[]):
-    ## Matches extraction and saving to files 
-    # Took ~35m for 5 years of data, may take less if files not saved considering everything fit in memory.
-    processed_mentions = pd.read_csv(f"datasets/{file_name}.csv").drop(columns=['Unnamed: 0']).set_index('file_name')
+def load_config(config_path:str="config.json"):
+    with open(config_path, "r") as f:
+        config = json.load(f)
+    if 'topic' in config:
+        topic = config["topic"]
+    if 'raw_filings_folder' not in config['edgar_crawler']:
+        config['edgar_crawler']['raw_filings_folder'] = f'{topic}_raw_filings'
+    if 'raw_filings_folder' not in config['extract_items']:
+        config['extract_items']['raw_filings_folder'] = f'{topic}_raw_filings'
+
+    if 'filings_metadata_file' not in config['extract_items']:
+        config['extract_items']['filings_metadata_file'] = f'{topic}_filings_metadata.csv'
+    if 'filings_metadata_file' not in config['edgar_crawler']:
+        config['edgar_crawler']['filings_metadata_file'] =f'{topic}_filings_metadata.csv'
+
+    if 'filing_types' not in config['extract_items']:
+        config['extract_items']['filing_types'] = config['filing_types']
+    if 'filing_types' not in config['edgar_crawler']:
+        config['edgar_crawler']['filing_types'] = config['filing_types']
+    
+
+    if 'indices_folder' not in config['edgar_crawler']:
+        config['edgar_crawler']['indices_folder'] = f'{topic}_indices'
+    if 'extracted_filings_folder' not in config['extract_items']:
+        config['extract_items']['extracted_filings_folder'] = f'{topic}_extracted_filings'
+
+    if 'mentions_name' not in config['extract_keywords']:
+        config['extract_keywords']['mentions_name'] = f'{topic}_mentions'
+    
+    return config
+
+def extract_mentions(config_path:str=None, config:dict=None): 
+    assert config_path is not None or config is not None, "config_path or config must be provided"
+    if config is None:
+        with open(config_path) as fin:
+            config = json.load(fin)
+    
+    mentions_name = config['extract_keywords']['mentions_name']
+
+    files_dir = fr"datasets\{config['extract_items']['extracted_filings_folder']}"
+    files = glob.glob(files_dir+r'\*')
+    relevant_filings = pd.read_csv(f"datasets/{config['extract_items']['filings_metadata_file']}")
+
+    relevant_files = [file for file in files if f"{os.path.basename(file).split('.')[0]}.htm" in relevant_filings['filename'].values]
+
+    assert len(relevant_files) == len(relevant_filings), "Not all relevant filings found in extracted files directory"
+    
+    if not os.path.exists(f"datasets/{mentions_name}_processed.csv"):
+        # Create a new DataFrame with the specified columns
+        processed_mentions = pd.DataFrame(columns=['file_name', 'mentions', 'processing_date']).set_index('file_name')
+        processed_mentions.to_csv(f"datasets/{mentions_name}_processed.csv")
+    else:
+        processed_mentions = pd.read_csv(f"datasets/{mentions_name}_processed.csv").set_index('file_name')
     existing = processed_mentions.index.tolist()
-    to_process = [file for file in files if file not in existing]
+    to_process = [file for file in relevant_files if file not in existing]
     json_files = {}
-    # processed_mentions = pd.read_csv(r"C:\Users\P70088982\Documents\edgar-crawler\datasets\processed_mentions.csv").set_index('file_name')
-    # to_process = [file for file in files if file not in processed_mentions['file_name'].values]
+
     for i, file in enumerate(to_process):
         example_file = read_file(file)
-        keywords = extract_keywords(example_file)
+        keywords = search_file(example_file, config['extract_keywords']['search_terms'])
         processed_mentions.loc[file] = pd.Series([None, pd.to_datetime('now', utc=True).date()], index=processed_mentions.columns)
         if keywords:
             json_files[file] = keywords
             # Save the results to a JSON file
-            mentions_file = file.replace('.json', '_matches.json').replace('extracted_filings', 'ai_mentions')
-
-
+            mentions_file = file.replace('.json', '_matches.json').replace(config['extract_items']['extracted_filings_folder'], mentions_name)
+            if not os.path.exists(os.path.dirname(mentions_file)):
+                os.makedirs(os.path.dirname(mentions_file))
             with open(mentions_file, 'w') as f:
                 json.dump(keywords, f, indent=4)
             processed_mentions.loc[file, 'mentions'] = mentions_file
 
-        if i % 100 == 0:
+        if i % 100 == 0 and i > 0:
             print(f"{i} files processed, {len(json_files)} files with keywords found, {len(to_process)-i} files remaining")
             # Take out of loop if you don't want to save every 100 files
-            processed_mentions.to_csv(f"datasets/{file_name}.csv")
+            processed_mentions.to_csv(f"datasets/{mentions_name}_processed.csv")
+    processed_mentions.to_csv(f"datasets/{mentions_name}_processed.csv")
 
     json_files = {}
-    files_paths = glob.glob(r"C:\Users\P70088982\Documents\edgar-crawler\datasets\ai_mentions\*")
+    files_paths = glob.glob(f"datasets/{mentions_name}/*")
     for i, file in enumerate(files_paths):
         with open(file, 'r') as handle:
             content = json.load(handle)
         json_files[file] = content
-        if i % 100 == 0:
+        if i % 100 == 0 and i > 0:
             print(f"{i} files loaded, {len(files_paths)-i} files remaining")
     df_rows = []
     for file in json_files:
@@ -113,27 +159,20 @@ def mention_extraction(files:list, file_name:str, sections:list=["1", "1A", "3",
     matches_df = pd.DataFrame(df_rows)
     matches_df['filing_year'] = pd.to_datetime(matches_df['filing_date']).dt.year 
     matches_df['reporting_year'] = pd.to_datetime(matches_df['period_of_report']).dt.year
-    matches_df.to_csv(r'C:\Users\P70088982\Documents\edgar-crawler\datasets\ai_mentions.csv', index=False)
-    matches_df.to_excel(r'C:\Users\P70088982\Documents\edgar-crawler\datasets\ai_mentions.xlsx', index=False)
-
-def extract_mentions(config_path:str="config.json"): 
-    with open(config_path, "r") as f:
-        config = json.load(f)
-    print(config)
-
-    files_dir = 'datasets/extracted_filings'
-    files = glob.glob(files_dir+r'\*')
-    relevant_filings = pd.read_csv(f'datasets/{config['extract_items']['filings_metadata_file']}')
-    relevant_files = [file for file in files if f'{os.path.basename(file).split('.')[0]}.htm' in relevant_filings['file_name'].values]
-    assert len(relevant_files) == len(relevant_filings), "Not all relevant filings found in extracted files directory"
-    file_name = config['extract_keywords']['extract_keywords_file_name']
-    # mention_extraction(relevant_files, file_name, search_terms=config['extract_keywords']['search_terms'])
+    matches_df.to_csv(f'datasets/{mentions_name}.csv', index=False)
+    matches_df.to_excel(f'datasets/{mentions_name}.xlsx', index=False)
 
 
 def main(config_path:str="config.json"):
+    config = load_config(config_path)
+    edgar_crawler.main(config=config)
+    extract_items.main(config=config)
+    extract_mentions(config=config)
 
-    edgar_crawler.main(config_path)
-    extract_items.main(config_path)
-    extract_mentions(config_path)
-
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description="Extract mentions of AI-related keywords from SEC filings.")
+    parser.add_argument('--config', type=str, default='config.json', help='Path to the configuration file.')
+    args = parser.parse_args()
     
+    main(args.config)

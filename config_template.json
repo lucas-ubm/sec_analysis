@@ -1,10 +1,10 @@
 {
 	"edgar_crawler": {
-		"start_year": 2020,
+		"start_year": 2025,
 		"end_year": 2025,
 		"quarters": [1, 2, 3, 4],
 		"filing_types": ["10-K"],
-		"cik_tickers": [],
+		"cik_tickers": ["789019"],
 		"user_agent": "Lucas (lgubm23@gmail.com)",
 		"raw_filings_folder": "raw_filings",
 		"indices_folder": "indices",
@@ -26,8 +26,7 @@
 		"Artificial General Intelligence","AGI", "generative", "deepfake"],
 		"ignore_case": true,
 		"regex_search": true,
-		"extract_keywords_file_name": "extracted_keywords",
-		"exclude_columns": [],
-		"format": "csv"
+		"mentions_name": "microsoft_mentions",
+		"exclude_columns": []
 	}
 }
