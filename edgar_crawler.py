@@ -40,7 +40,7 @@ LOGGER = Logger(name=os.path.splitext(os.path.basename(os.path.abspath(__file__)
 LOGGER.info(f'Saving log to {os.path.join(LOGGING_DIR)}\n')
 
 
-def main():
+def main(config_path:str='config.json'):
 	"""
 	This is the main function that orchestrates the entire flow of crawling and downloading filings from SEC EDGAR.
 
@@ -50,7 +50,7 @@ def main():
 	"""
 
 	# Load the configuration file
-	with open('config.json') as fin:
+	with open(config_path) as fin:
 		config = json.load(fin)['edgar_crawler']
 
 	# Define the directories and filepaths

@@ -19,5 +19,15 @@
 		"items_to_extract": [],
 		"remove_tables": true,
 		"skip_extracted_filings": true
+	},
+	"extract_keywords": {
+		"search_terms": ["Artificial Intelligence","A\\.I", "AI", "Machine Learning","Deep Learning","NLP",
+		"Natural Language Processing", "Computer Vision", "Chatbot","Recommendation System", "Recommender System", "Image Recognition", "Speech Recognition", "Voice Assistant",
+		"Artificial General Intelligence","AGI", "generative", "deepfake"],
+		"ignore_case": true,
+		"regex_search": true,
+		"extract_keywords_file_name": "extracted_keywords",
+		"exclude_columns": [],
+		"format": "csv"
 	}
 }
