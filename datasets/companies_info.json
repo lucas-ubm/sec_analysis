@@ -19,5 +19,12 @@
         "State location": "TX",
         "State of Inc": "TX",
         "Fiscal Year End": "1231"
+    },
+    "1000209": {
+        "Company Name": "MEDALLION FINANCIAL CORP",
+        "SIC": "6199",
+        "State location": "NY",
+        "State of Inc": "DE",
+        "Fiscal Year End": "1231"
     }
 }

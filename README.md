@@ -88,8 +88,7 @@ In the config file you can specify:
     - `regex_search`: whether the terms should be compiled as regular expressions or not. Default value is True.
     - `mentions_name`: the name that the output files should have. 
 
-- To execute the full pipeline, run `python extract_mentions.py --config=example_config.json`. This will automatically run each of the three modules consecutively. If the download or extraction is interrupted, re-running the pipeline will only execute the remaining tasks instead of starting from scratch.  
-
+- To execute the full pipeline, run `python extract_mentions.py --config=<config>`. This will automatically run each of the three modules consecutively. If the download or extraction is interrupted, re-running the pipeline will only execute the remaining tasks instead of starting from scratch. For example, to use one of the provided configs: `python extract_mentions.py --config=configs/simplified_ai_config.json`
 ## Citation
 A paper is on its way. Until then, please cite the relevant EDGAR-CORPUS paper published at the [3rd Economics and Natural Language Processing (ECONLP) workshop](https://lt3.ugent.be/econlp/) at EMNLP 2021 (Punta Cana, Dominican Republic):
 ```
