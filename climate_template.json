@@ -24,7 +24,6 @@
 		"search_terms": ["climate", "global warming", "carbon emissions", "sustainability", "renewable energy", "climate change", "greenhouse gases", "climate policy", "environmental impact", "carbon footprint", "net zero", "climate action"],
 		"ignore_case": true,
 		"regex_search": true,
-		"mentions_name": "climate_mentions",
-		"exclude_columns": []
+		"mentions_name": "climate_mentions"
 	}
 }
