@@ -1,6 +1,6 @@
 # SEC data keyword-analysis
 
-The knowledge hidden in financial reports at the end of your fingertips. We provide an interface for the easy extraction of keywords from SEC forms. You provide the relevant keywords, companies and time range and we deliver insights. 
+The knowledge hidden in financial reports without the hassle. We provide an interface for the easy extraction of keywords from SEC forms. You provide the relevant keywords, companies and time range and we deliver insights. 
 
 Through `EDGAR-CRAWLER` we crawl and download financial reports and extract relevant items in a conveninent format. We then identify whether the indicated keywords can be found in the form and in which section, extracting relevant sentences. An Excel sheet is provided for convenient and systematic analysis of relevant statements. 
 
@@ -23,8 +23,6 @@ Through `EDGAR-CRAWLER` we crawl and download financial reports and extract rele
 - [Install](#install)
 - [Usage](#usage)
 - [Citation](#citation)
-- [Accompanying Resources](#accompanying-resources)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Install
@@ -35,7 +33,7 @@ Through `EDGAR-CRAWLER` we crawl and download financial reports and extract rele
 We provide two different interfaces for the module through config files: one follows the `edgar-crawler` format for compatibility, the other one provides a simplified interface. Both produce the same behavior. We provide four example config files:  %TODO: add file names.
 
 ### Simplified config
-This simplified config resolves redundancies in the `edgar-crawler` config, ensuring consistency across the pipeline steps and ease of use. The config is transformed to `edgar-crwaler` style automatically, ensuring maximum compatibility. 
+This simplified config resolves redundancies in the `edgar-crawler` config, ensuring consistency across the pipeline steps and ease of use. The config is transformed to `edgar-crwaler` style automatically, ensuring maximum compatibility. TODO: add explanation for simplified config
 
 
 ### `edgar-crawler` style config
@@ -72,7 +70,7 @@ This simplified config resolves redundancies in the `edgar-crawler` config, ensu
 - To execute the full pipeline, run `python extract_mentions.py --config=example_config.json`. This will automatically run each of the three modules consecutively. If the download or extraction is interrupted, re-running the pipeline will only execute the remaining tasks instead of starting from scratch.  
 
 ## Citation
-An EDGAR-CRAWLER paper is on its way. Until then, please cite the relevant EDGAR-CORPUS paper published at the [3rd Economics and Natural Language Processing (ECONLP) workshop](https://lt3.ugent.be/econlp/) at EMNLP 2021 (Punta Cana, Dominican Republic):
+A paper is on its way. Until then, please cite the relevant EDGAR-CORPUS paper published at the [3rd Economics and Natural Language Processing (ECONLP) workshop](https://lt3.ugent.be/econlp/) at EMNLP 2021 (Punta Cana, Dominican Republic):
 ```
 @inproceedings{loukas-etal-2021-edgar,
     title = "{EDGAR}-{CORPUS}: Billions of Tokens Make The World Go Round",
@@ -89,6 +87,5 @@ An EDGAR-CRAWLER paper is on its way. Until then, please cite the relevant EDGAR
     pages = "13--18",
 }
 ```
-Read the paper here: [https://aclanthology.org/2021.econlp-1.2/](https://aclanthology.org/2021.econlp-1.2/)
 ## License
 Please see the [GNU General Public License v3.0](). TODO: add link to our license.
