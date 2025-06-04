@@ -12,8 +12,12 @@ def read_file(file_name:str) -> dict:
     return content
 
 
-def search_file(file:dict, search_terms:list, sections:list=["1", "1A", "3", "7"]):
-  search_pattern = re.compile(r'\b(' + '|'.join(search_terms) + r')\b', re.IGNORECASE)
+def search_file(file:dict, search_terms:list, sections:list=["1", "1A", "3", "7"], ignore_case:bool=True, regex_search:bool=True):
+  flags = re.IGNORECASE if ignore_case else 0
+  if regex_search:
+    search_pattern = re.compile(r'\b(' + '|'.join(search_terms) + r')\b', flags)
+  else:
+    search_pattern = re.compile(r'\b(' + '|'.join(re.escape(term) for term in search_terms) + r')\b', flags)
   document_results = {}
   document_results['company'] = file['company']
   document_results['cik'] = file['cik']
@@ -116,7 +120,7 @@ def extract_mentions(config_path:str=None, config:dict=None):
 
     for i, file in enumerate(to_process):
         example_file = read_file(file)
-        keywords = search_file(example_file, config['extract_keywords']['search_terms'])
+        keywords = search_file(example_file, config['extract_keywords']['search_terms'], ignore_case=config['extract_keywords']['ignore_case'], regex_search=config['extract_keywords']['regex_search'])
         processed_mentions.loc[file] = pd.Series([None, pd.to_datetime('now', utc=True).date()], index=processed_mentions.columns)
         if keywords:
             json_files[file] = keywords

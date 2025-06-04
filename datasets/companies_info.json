@@ -26,5 +26,19 @@
         "State location": "NY",
         "State of Inc": "DE",
         "Fiscal Year End": "1231"
+    },
+    "1000228": {
+        "Company Name": "HENRY SCHEIN INC",
+        "SIC": "5047",
+        "State location": "NY",
+        "State of Inc": "DE",
+        "Fiscal Year End": "1227"
+    },
+    "1000623": {
+        "Company Name": "Mativ Holdings, Inc.",
+        "SIC": "2621",
+        "State location": "GA",
+        "State of Inc": "DE",
+        "Fiscal Year End": "1231"
     }
 }
