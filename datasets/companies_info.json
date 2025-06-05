@@ -40,5 +40,12 @@
         "State location": "GA",
         "State of Inc": "DE",
         "Fiscal Year End": "1231"
+    },
+    "1652044": {
+        "Company Name": "Alphabet Inc.",
+        "SIC": "7370",
+        "State location": "CA",
+        "State of Inc": "DE",
+        "Fiscal Year End": "1231"
     }
 }

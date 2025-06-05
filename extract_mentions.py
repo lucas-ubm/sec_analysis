@@ -19,11 +19,11 @@ def search_file(file:dict, search_terms:list, sections:list=["1", "1A", "3", "7"
   else:
     search_pattern = re.compile(r'\b(' + '|'.join(re.escape(term) for term in search_terms) + r')\b', flags)
   document_results = {}
-  document_results['company'] = file['company']
-  document_results['cik'] = file['cik']
-  document_results['filing_date'] = file['filing_date']
-  document_results['period_of_report'] = file['period_of_report']
-  document_results['filename'] = file['filename']
+  document_results['company'] = file.get('company', None)
+  document_results['cik'] = file.get('cik', None)
+  document_results['filing_date'] = file.get('filing_date', None)
+  document_results['period_of_report'] = file.get('period_of_report', None)
+  document_results['filename'] = file.get('filename', None)
 
   filled=False
 
@@ -56,7 +56,7 @@ def search_file(file:dict, search_terms:list, sections:list=["1", "1A", "3", "7"
                     "keyword": keyword,
                     "sentence": sentence,
                     "paragraph": paragraph, 
-                    "match_id": f'{file["cik"]}_{section}_{keyword}_{start_index}_{end_index}'})
+                    "match_id": f'{file.get("cik", "")}_{section}_{keyword}_{start_index}_{end_index}'})
   if not filled:
     document_results = None
   return document_results   
@@ -106,7 +106,13 @@ def extract_mentions(config_path:str=None, config:dict=None):
 
     relevant_files = [file for file in files if f"{os.path.basename(file).split('.')[0]}.htm" in relevant_filings['filename'].values]
 
-    assert len(relevant_files) == len(relevant_filings), "Not all relevant filings found in extracted files directory"
+    print(f"DEBUG: ignore_missing_filings = {config.get('ignore_missing_filings')}")
+    print(f"DEBUG: len(relevant_files) = {len(relevant_files)}, len(relevant_filings) = {len(relevant_filings)}")
+    if config.get("ignore_missing_filings"):
+        if len(relevant_files) != len(relevant_filings):
+            print("Warning: Not all relevant filings found in extracted files directory. Continuing anyway.")
+    else:
+        assert len(relevant_files) == len(relevant_filings), "Not all relevant filings found in extracted files directory"
     
     if not os.path.exists(f"datasets/{mentions_name}_processed.csv"):
         # Create a new DataFrame with the specified columns

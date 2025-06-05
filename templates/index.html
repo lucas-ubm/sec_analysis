@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEC Filing Analysis Tool</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .loading {
+            display: none;
+        }
+        .error {
+            color: red;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="mb-4">SEC Filing Analysis Tool</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <form id="analysisForm">
+                    <div class="mb-3">
+                        <label for="keywords" class="form-label">Keywords (comma-separated)</label>
+                        <input type="text" class="form-control" id="keywords" name="keywords" required
+                               placeholder="e.g., climate, global warming, carbon emissions">
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="start_year" class="form-label">Start Year</label>
+                                <input type="number" class="form-control" id="start_year" name="start_year" required
+                                       min="1993" max="2024" value="2023">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="end_year" class="form-label">End Year</label>
+                                <input type="number" class="form-control" id="end_year" name="end_year" required
+                                       min="1993" max="2024" value="2024">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="filing_types" class="form-label">Filing Types (comma-separated)</label>
+                        <input type="text" class="form-control" id="filing_types" name="filing_types" required
+                               value="10-K" placeholder="e.g., 10-K, 10-Q">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="cik_tickers" class="form-label">CIK/Ticker Numbers (comma-separated)</label>
+                        <input type="text" class="form-control" id="cik_tickers" name="cik_tickers" required
+                               placeholder="e.g., AAPL, MSFT, GOOGL">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="user_agent" class="form-label">User Agent (Name/Email)</label>
+                        <input type="text" class="form-control" id="user_agent" name="user_agent" required
+                               placeholder="Your Name (your.email@example.com)">
+                    </div>
+                    <div class="form-check mb-3">
+                      <input class="form-check-input" type="checkbox" value="yes" id="ignore_missing" name="ignore_missing">
+                      <label class="form-check-label" for="ignore_missing">
+                        Ignore missing filings and continue with available files
+                      </label>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Start Analysis</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="loading mt-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Analysis in Progress</h5>
+                    <p class="card-text">Please wait while we analyze the SEC filings...</p>
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="error mt-4">
+            <div class="alert alert-danger" role="alert"></div>
+        </div>
+        
+        <div class="results mt-4" style="display: none;">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Analysis Complete!</h5>
+                    <p class="card-text">Your analysis is ready for download.</p>
+                    <a href="#" class="btn btn-success download-btn">Download Results</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentJobId = null;
+        
+        document.getElementById('analysisForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Show loading
+            document.querySelector('.loading').style.display = 'block';
+            document.querySelector('.error').style.display = 'none';
+            document.querySelector('.results').style.display = 'none';
+            
+            try {
+                const formData = new FormData(e.target);
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                currentJobId = data.job_id;
+                
+                // Start polling for status
+                pollStatus();
+            } catch (error) {
+                showError('Failed to start analysis: ' + error.message);
+            }
+        });
+        
+        async function pollStatus() {
+            if (!currentJobId) return;
+            
+            try {
+                const response = await fetch(`/status/${currentJobId}`);
+                const data = await response.json();
+                
+                if (data.status === 'completed') {
+                    document.querySelector('.loading').style.display = 'none';
+                    document.querySelector('.results').style.display = 'block';
+                    document.querySelector('.download-btn').href = `/download/${currentJobId}`;
+                } else if (data.status === 'failed') {
+                    showError('Analysis failed: ' + data.error);
+                } else {
+                    // Continue polling
+                    setTimeout(pollStatus, 5000);
+                }
+            } catch (error) {
+                showError('Failed to check status: ' + error.message);
+            }
+        }
+        
+        function showError(message) {
+            document.querySelector('.loading').style.display = 'none';
+            document.querySelector('.error').style.display = 'block';
+            document.querySelector('.error .alert').textContent = message;
+        }
+    </script>
+</body>
+</html> 
