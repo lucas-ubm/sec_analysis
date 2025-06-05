@@ -1,0 +1,23 @@
+{
+	"topic": "climate_change",
+	"filing_types":[ "10-K"],
+	"edgar_crawler": {
+		"start_year": 2025,
+		"end_year": 2025,
+		"quarters": [1, 2, 3, 4],
+		"cik_tickers": [1018724, 1045810, 1318605, 909832],
+		"user_agent": "Name (email@domain.com)",
+		"skip_present_indices": true
+	},
+	"extract_items": {
+		"items_to_extract": [],
+		"remove_tables": true,
+		"skip_extracted_filings": true
+	},
+	"extract_keywords": {
+		"search_terms": ["climate", "global warming", "carbon emissions", "sustainability", "renewable energy", "climate change", "greenhouse gases", "climate policy", "environmental impact", "carbon footprint", "net zero", "climate action"],
+		"ignore_case": true,
+		"regex_search": true,
+		"exclude_columns": []
+	}
+}
