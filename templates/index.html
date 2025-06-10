@@ -21,40 +21,58 @@
         
         <div class="card">
             <div class="card-body">
-                <form id="analysisForm">
+                <form id="analysisForm" enctype="multipart/form-data">
                     <div class="mb-3">
-                        <label for="keywords" class="form-label">Keywords (comma-separated)</label>
-                        <input type="text" class="form-control" id="keywords" name="keywords" required
-                               placeholder="e.g., climate, global warming, carbon emissions">
+                        <label for="config_type" class="form-label">Configuration Type</label>
+                        <select class="form-select" id="config_type" name="config_type">
+                            <option value="manual">Manual Configuration</option>
+                            <option value="file">Upload Config File</option>
+                        </select>
                     </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="start_year" class="form-label">Start Year</label>
-                                <input type="number" class="form-control" id="start_year" name="start_year" required
-                                       min="1993" max="2024" value="2023">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label for="end_year" class="form-label">End Year</label>
-                                <input type="number" class="form-control" id="end_year" name="end_year" required
-                                       min="1993" max="2024" value="2024">
-                            </div>
+
+                    <div id="file_config_section" style="display: none;">
+                        <div class="mb-3">
+                            <label for="config_file" class="form-label">Upload Configuration File (JSON)</label>
+                            <input type="file" class="form-control" id="config_file" name="config_file" accept=".json">
+                            <div class="form-text">Upload a JSON configuration file or fill in the form below</div>
                         </div>
                     </div>
-                    
-                    <div class="mb-3">
-                        <label for="filing_types" class="form-label">Filing Types (comma-separated)</label>
-                        <input type="text" class="form-control" id="filing_types" name="filing_types" required
-                               value="10-K" placeholder="e.g., 10-K, 10-Q">
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="cik_tickers" class="form-label">CIK/Ticker Numbers (comma-separated)</label>
-                        <input type="text" class="form-control" id="cik_tickers" name="cik_tickers" required
-                               placeholder="e.g., AAPL, MSFT, GOOGL">
+
+                    <div id="manual_config_section">
+                        <div class="mb-3">
+                            <label for="keywords" class="form-label">Keywords (comma-separated)</label>
+                            <input type="text" class="form-control" id="keywords" name="keywords"
+                                   placeholder="e.g., climate, global warming, carbon emissions">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="start_year" class="form-label">Start Year</label>
+                                    <input type="number" class="form-control" id="start_year" name="start_year"
+                                           min="1993" max="2024" value="2023">
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="end_year" class="form-label">End Year</label>
+                                    <input type="number" class="form-control" id="end_year" name="end_year"
+                                           min="1993" max="2024" value="2024">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="filing_types" class="form-label">Filing Types (comma-separated)</label>
+                            <input type="text" class="form-control" id="filing_types" name="filing_types"
+                                   value="10-K" placeholder="e.g., 10-K, 10-Q">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="cik_tickers" class="form-label">CIK/Ticker Numbers (comma-separated)</label>
+                            <input type="text" class="form-control" id="cik_tickers" name="cik_tickers"
+                                   placeholder="e.g., AAPL, MSFT, GOOGL">
+                        </div>
                     </div>
                     
                     <div class="mb-3">
@@ -103,6 +121,34 @@
     <script>
         let currentJobId = null;
         
+        // Handle config type selection
+        document.getElementById('config_type').addEventListener('change', function() {
+            const isFile = this.value === 'file';
+            document.getElementById('file_config_section').style.display = isFile ? 'block' : 'none';
+            document.getElementById('manual_config_section').style.display = isFile ? 'none' : 'block';
+            
+            // Update required fields
+            const manualInputs = document.querySelectorAll('#manual_config_section input');
+            manualInputs.forEach(input => {
+                input.required = !isFile;
+                // Reset disabled state
+                input.disabled = isFile;
+            });
+            
+            // Update file input required
+            const fileInput = document.getElementById('config_file');
+            fileInput.required = isFile;
+            
+            // Clear file input when switching to manual
+            if (!isFile) {
+                fileInput.value = '';
+            }
+            
+            // Reset form validation state
+            const form = document.getElementById('analysisForm');
+            form.classList.remove('was-validated');
+        });
+        
         document.getElementById('analysisForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -113,10 +159,69 @@
             
             try {
                 const formData = new FormData(e.target);
+                const configType = formData.get('config_type');
+                
+                // Validate form based on config type
+                if (configType === 'manual') {
+                    // Check each required field
+                    const requiredFields = {
+                        'keywords': 'Keywords',
+                        'start_year': 'Start Year',
+                        'end_year': 'End Year',
+                        'filing_types': 'Filing Types',
+                        'cik_tickers': 'CIK/Ticker Numbers',
+                        'user_agent': 'User Agent'
+                    };
+                    
+                    const missingFields = [];
+                    for (const [field, label] of Object.entries(requiredFields)) {
+                        const value = formData.get(field);
+                        if (!value || value.trim() === '') {
+                            missingFields.push(label);
+                        }
+                    }
+                    
+                    if (missingFields.length > 0) {
+                        throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+                    }
+                    
+                    // Validate years
+                    const startYear = parseInt(formData.get('start_year'));
+                    const endYear = parseInt(formData.get('end_year'));
+                    if (isNaN(startYear) || isNaN(endYear)) {
+                        throw new Error('Invalid year values');
+                    }
+                    if (startYear > endYear) {
+                        throw new Error('Start year cannot be greater than end year');
+                    }
+                    
+                    // Validate filing types
+                    const filingTypes = formData.get('filing_types').split(',').map(ft => ft.trim());
+                    if (filingTypes.length === 0 || filingTypes.some(ft => ft === '')) {
+                        throw new Error('Invalid filing types');
+                    }
+                    
+                    // Validate CIK/tickers
+                    const cikTickers = formData.get('cik_tickers').split(',').map(ct => ct.trim());
+                    if (cikTickers.length === 0 || cikTickers.some(ct => ct === '')) {
+                        throw new Error('Invalid CIK/Ticker numbers');
+                    }
+                } else if (configType === 'file') {
+                    const configFile = formData.get('config_file');
+                    if (!configFile || configFile.size === 0) {
+                        throw new Error('Please select a configuration file');
+                    }
+                }
+                
                 const response = await fetch('/analyze', {
                     method: 'POST',
                     body: formData
                 });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.detail || 'Failed to start analysis');
+                }
                 
                 const data = await response.json();
                 currentJobId = data.job_id;
@@ -124,7 +229,7 @@
                 // Start polling for status
                 pollStatus();
             } catch (error) {
-                showError('Failed to start analysis: ' + error.message);
+                showError(error.message);
             }
         });
         
