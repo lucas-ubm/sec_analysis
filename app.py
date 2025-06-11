@@ -106,28 +106,22 @@ async def analyze(
             
         keywords_list = [k.strip() for k in keywords.split(",")]
         filing_types_list = [ft.strip() for ft in filing_types.split(",")]
-        cik_tickers_list = [ct.strip() for ct in cik_tickers.split(",")]
+        cik_tickers_list = [ct.strip() for ct in cik_tickers.split(",")] if cik_tickers else []
         ignore_missing_flag = ignore_missing == "yes"
         
-        # Create complete config
+        # USe simplified config instead
         config = {
+            "topic": f"analysis_{job_id}",
+            "filing_types": filing_types_list,
             "edgar_crawler": {
                 "start_year": start_year,
                 "end_year": end_year,
                 "quarters": [1, 2, 3, 4],
-                "filing_types": filing_types_list,
                 "cik_tickers": cik_tickers_list,
                 "user_agent": user_agent,
-                "raw_filings_folder": "raw_filings",
-                "indices_folder": "indices",
-                "filings_metadata_file": "filings_metadata.csv",
                 "skip_present_indices": True
             },
             "extract_items": {
-                "raw_filings_folder": "raw_filings",
-                "extracted_filings_folder": "extracted_filings",
-                "filings_metadata_file": "filings_metadata.csv",
-                "filing_types": filing_types_list,
                 "items_to_extract": [],
                 "remove_tables": True,
                 "skip_extracted_filings": True
@@ -136,11 +130,9 @@ async def analyze(
                 "search_terms": keywords_list,
                 "ignore_case": True,
                 "regex_search": True,
-                "mentions_name": f"analysis_{job_id}_mentions",
                 "exclude_columns": []
             }
         }
-    
     # Save config
     config_path = f"datasets/config_{job_id}.json"
     with open(config_path, "w") as f:
@@ -182,7 +174,7 @@ async def download_results(job_id: str):
     if job["status"] != "completed":
         raise HTTPException(status_code=400, detail="Analysis not completed yet")
     
-    mentions_name = job["config"]["extract_keywords"]["mentions_name"]
+    mentions_name = f"analysis_{job_id}_mentions"
     excel_path = f"datasets/{mentions_name}.xlsx"
     
     if not os.path.exists(excel_path):
