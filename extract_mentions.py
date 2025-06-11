@@ -167,10 +167,19 @@ def extract_mentions(config_path:str=None, config:dict=None):
                 df_rows.append(row)
 
     matches_df = pd.DataFrame(df_rows)
-    matches_df['filing_year'] = pd.to_datetime(matches_df['filing_date']).dt.year 
-    matches_df['reporting_year'] = pd.to_datetime(matches_df['period_of_report']).dt.year
-    matches_df.to_csv(f'datasets/{mentions_name}.csv', index=False)
-    matches_df.to_excel(f'datasets/{mentions_name}.xlsx', index=False)
+    
+    # Only process dates if we have matches
+    if not matches_df.empty:
+        matches_df['filing_year'] = pd.to_datetime(matches_df['filing_date']).dt.year 
+        matches_df['reporting_year'] = pd.to_datetime(matches_df['period_of_report']).dt.year
+        matches_df.to_csv(f'datasets/{mentions_name}.csv', index=False)
+        matches_df.to_excel(f'datasets/{mentions_name}.xlsx', index=False)
+    else:
+        # Create empty DataFrame with correct columns
+        empty_df = pd.DataFrame(columns=['company', 'cik', 'filing_date', 'period_of_report', 'filename', 
+                                       'keyword', 'sentence', 'match_id', 'match_field', 'filing_year', 'reporting_year'])
+        empty_df.to_csv(f'datasets/{mentions_name}.csv', index=False)
+        empty_df.to_excel(f'datasets/{mentions_name}.xlsx', index=False)
 
 
 def main(config_path:str="config.json"):
