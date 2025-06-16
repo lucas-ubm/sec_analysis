@@ -40,7 +40,7 @@ LOGGER = Logger(name=os.path.splitext(os.path.basename(os.path.abspath(__file__)
 LOGGER.info(f'Saving log to {os.path.join(LOGGING_DIR)}\n')
 
 
-def main(config_path:str='config.json'):
+def main(config_path:str=None, config:dict=None):
 	"""
 	This is the main function that orchestrates the entire flow of crawling and downloading filings from SEC EDGAR.
 
@@ -48,10 +48,14 @@ def main(config_path:str='config.json'):
 	gets specific indices according to the provided filing types and CIKs/tickers, compares the new indices with the old ones 
 	to download only the new filings, and then crawls through each index to download (from the .tsv files) and save the filing.
 	"""
+	assert config_path is not None or config is not None, "config_path or config must be provided"
 
 	# Load the configuration file
-	with open(config_path) as fin:
-		config = json.load(fin)['edgar_crawler']
+	if config is None:
+		with open(config_path) as fin:
+			config = json.load(fin)['edgar_crawler']
+	else:
+		config = config['edgar_crawler']
 
 	# Define the directories and filepaths
 	raw_filings_folder = os.path.join(DATASET_DIR, config['raw_filings_folder'])
@@ -128,7 +132,7 @@ def main(config_path:str='config.json'):
 		# If there are no new filings to download, exit
 		if len(series_to_download) == 0:
 			LOGGER.info('\nThere are no more filings to download for the given years, quarters and companies')
-			exit()
+			return
 
 		# Concatenate the series to be downloaded
 		df = pd.concat(series_to_download) if (len(series_to_download) > 1) else series_to_download[0]

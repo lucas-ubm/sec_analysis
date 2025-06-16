@@ -1,0 +1,32 @@
+{
+	"edgar_crawler": {
+		"start_year": 2025,
+		"end_year": 2025,
+		"quarters": [1, 2, 3, 4],
+		"filing_types": ["10-K"],
+		"cik_tickers": [],
+		"user_agent": "Name (email@domain.com)",
+		"raw_filings_folder": "raw_filings",
+		"indices_folder": "indices",
+		"filings_metadata_file":  "filings_metadata.csv",
+		"skip_present_indices": true
+	},
+	"extract_items": {
+		"raw_filings_folder": "raw_filings",
+		"extracted_filings_folder": "extracted_filings",
+		"filings_metadata_file": "filings_metadata.csv",
+		"filing_types": ["10-K"],
+		"items_to_extract": [],
+		"remove_tables": true,
+		"skip_extracted_filings": true
+	},
+	"extract_keywords": {
+		"search_terms": ["Artificial Intelligence","A\\.I", "AI", "Machine Learning","Deep Learning","NLP",
+		"Natural Language Processing", "Computer Vision", "Chatbot","Recommendation System", "Recommender System", "Image Recognition", "Speech Recognition", "Voice Assistant",
+		"Artificial General Intelligence","AGI", "generative", "deepfake"],
+		"ignore_case": true,
+		"regex_search": true,
+		"mentions_name": "ai_mentions",
+		"exclude_columns": []
+	}
+}

@@ -765,13 +765,16 @@ class ExtractItems:
         return 1
 
 
-def main() -> None:
+def main(config_path:str=None, config:dict=None) -> None:
     """
     Gets the list of 10K files and extracts all textual items/sections by calling the extract_items() function.
     """
-
-    with open("config.json") as fin:
-        config = json.load(fin)["extract_items"]
+    assert config_path is not None or config is not None, "config_path or config must be provided"
+    if config is None:
+        with open(config_path) as fin:
+            config = json.load(fin)["extract_items"]
+    else:
+        config = config["extract_items"]
 
     filings_metadata_filepath = os.path.join(
         DATASET_DIR, config["filings_metadata_file"]
