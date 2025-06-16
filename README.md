@@ -1,5 +1,5 @@
 # SEC data keyword-analysis
-
+TODO: allow for year selection beyond 2024, check why nvidia is included in the analysis regardless of the specified CIKs. Provide short explanation (just copy pasted from the README).
 The knowledge hidden in financial reports without the hassle. We provide an interface for the easy extraction of keywords from SEC forms. You provide the relevant keywords, companies and time range and we deliver insights. 
 
 Through `EDGAR-CRAWLER` we crawl and download financial reports and extract relevant items in a conveninent format. We then identify whether the indicated keywords can be found in the form and in which section, extracting relevant sentences. An Excel sheet is provided for convenient and systematic analysis of relevant statements. 
