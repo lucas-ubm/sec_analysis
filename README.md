@@ -30,6 +30,8 @@ Through `EDGAR-CRAWLER` we crawl and download financial reports and extract rele
 - Install dependencies via `pip install -r requirements.txt`
 
 ## Usage
+You can test out the tool in https://web-production-3838.up.railway.app. 
+
 We provide two different interfaces for the module through config files: one follows the `edgar-crawler` format for compatibility, the other one provides a simplified interface. Both produce the same behavior and there is no need to specify which kind of config you are using. We provide four example config files: `climate_simplified_config.json`, `climate_config.json`, `ai_simplified_config.json`, `ai_config.json`
 
 ### `edgar-crawler` style config
