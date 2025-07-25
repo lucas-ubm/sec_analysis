@@ -1,7 +1,7 @@
 # SEC data keyword-analysis
 The knowledge hidden in financial reports without the hassle. We provide an interface for the easy extraction of keywords from SEC forms. You provide the relevant keywords, companies and time range and we deliver insights. 
 
-Through `EDGAR-CRAWLER` we crawl and download financial reports and extract relevant items in a conveninent format. We then identify whether the indicated keywords can be found in the form and in which section, extracting relevant sentences. An Excel sheet is provided for convenient and systematic analysis of relevant statements. 
+Through `EDGAR-CRAWLER` we crawl and download financial reports and extract relevant items in a convenient format. We then identify whether the indicated keywords can be found in the form and in which section, extracting relevant sentences. An Excel sheet is provided for convenient and systematic analysis of relevant statements. 
 
 ### `EDGAR-CRAWLER` core modules:
 📥🕷️ Business Documents Crawling: Utilize the power of the `edgar_crawler.py` module to effortlessly crawl and download financial reports for every publicly-traded company within your specified years.
@@ -49,7 +49,7 @@ Before running any script, you should edit the `config.json` file, which configu
       - `filings_metadata_file`: CSV filename to save metadata from the reports.
       - `skip_present_indices`: Whether to skip already downloaded EDGAR indices or download them nonetheless.<br> Default value is `True`.
   - Arguments for `extract_items.py`, the module to clean and extract textual data from already-downloaded 10-K reports:
-    - `raw_filings_folder`: the name of the folder where the downloaded documents are stored.<br> Default value s `'RAW_FILINGS'`.
+    - `raw_filings_folder`: the name of the folder where the downloaded documents are stored.<br> Default value is `'RAW_FILINGS'`.
     - `extracted_filings_folder`: the name of the folder where extracted documents will be stored.<br> Default value is `'EXTRACTED_FILINGS'`.<br> For each downloaded report, a corresponding JSON file will be created containing the item sections as key-pair values.
     - `filings_metadata_file`: CSV filename to load reports metadata (Provide the same csv file as in `edgar_crawler.py`).
     - `items_to_extract`: a list with the certain item sections to extract. <br>
@@ -64,9 +64,9 @@ Before running any script, you should edit the `config.json` file, which configu
     - `mentions_name`: the name that the output files should have. 
 
 ### Simplified config
-This simplified config resolves redundancies in the `edgar-crawler` config, ensuring consistency across the pipeline steps and ease of use. The config is transformed to `edgar-crwaler` style automatically, ensuring maximum compatibility.
+This simplified config resolves redundancies in the `edgar-crawler` config, ensuring consistency across the pipeline steps and ease of use. The config is transformed to `edgar-crawler` style automatically, ensuring maximum compatibility.
 In the config file you can specify:
-  - `topic`: string representings the name of the topic your keywords relate to, all directories and files will be of the form `<topic>_<directory>` e.g. if the topic was climate, filings would be stored under `climate_raw_filings` and `climate_extracted_filings`
+  - `topic`: string representing the name of the topic your keywords relate to, all directories and files will be of the form `<topic>_<directory>` e.g. if the topic was climate, filings would be stored under `climate_raw_filings` and `climate_extracted_filings`
   - `filing_types`: list of filing types to download.<br> Default value is: `['10-K', '10-K405', '10-KT']`.
   - Arguments for `edgar_crawler.py`, the module to download financial reports:
       - `start_year XXXX`: the year range to start from (default is 2021).
